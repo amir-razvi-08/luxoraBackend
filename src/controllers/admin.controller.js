@@ -4,16 +4,13 @@ import { ApiError } from "../utils/ApiError.js";
 import { options } from "../constants.js";
 import { Admin } from "../models/admin.model.js";
 
-
-const generateToken = async (adminId) => {
-    const admin = await Admin.findById(adminId);
+const generateToken = async (admin) => {
+    
     if (!admin) throw new ApiError(404, "Admin not found");
 
     const accessToken = admin.generateAccessToken();
     return accessToken;
 };
-
-
 
 const registerAdmin = asyncHandler(async (req, res) => {
     const { fullName, email, password } = req.body;
@@ -37,8 +34,6 @@ const registerAdmin = asyncHandler(async (req, res) => {
     return res.status(201).json(new ApiResponse(201, adminCreated, "Admin registered successfully"));
 });
 
-
-
 const loginAdmin = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
@@ -56,7 +51,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Invalid password");
     }
 
-    const accessToken = await generateToken(admin._id);
+    const accessToken = await generateToken(admin);
     const loggedInAdmin = await Admin.findById(admin._id).select("-password");
 
     return res
@@ -69,4 +64,14 @@ const logoutAdmin = asyncHandler(async (req, res) => {
     return res.status(200).clearCookie("accessToken", options).json(new ApiResponse(200, {}, "Admin logged out successfully"));
 });
 
-export { loginAdmin, logoutAdmin, registerAdmin };
+const isAuthAdmin = asyncHandler(async (req, res) => {
+    if (!req.admin) {
+        throw new ApiError(401, "Admin not authenticated");
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, { admin: req.admin }, "Admin is authenticated"));
+});
+
+export { loginAdmin, logoutAdmin, registerAdmin, isAuthAdmin };
