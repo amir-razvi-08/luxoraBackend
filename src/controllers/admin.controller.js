@@ -5,7 +5,6 @@ import { options } from "../constants.js";
 import { Admin } from "../models/admin.model.js";
 
 const generateToken = async (admin) => {
-    
     if (!admin) throw new ApiError(404, "Admin not found");
 
     const accessToken = admin.generateAccessToken();
@@ -56,7 +55,13 @@ const loginAdmin = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .cookie("accessToken", accessToken, options)
+        .cookie("accessToken", accessToken, {
+            httpOnly: true,
+            domain: "luxora-admin.vercel.app",
+            secure: true,
+            sameSite: "None",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
         .json(new ApiResponse(200, { admin: loggedInAdmin }, "Admin logged in successfully"));
 });
 
@@ -69,9 +74,7 @@ const isAuthAdmin = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Admin not authenticated");
     }
 
-    return res
-    .status(200)
-    .json(new ApiResponse(200, { admin: req.admin.admin }, "Admin is authenticated"));
+    return res.status(200).json(new ApiResponse(200, { admin: req.admin.admin }, "Admin is authenticated"));
 });
 
 export { loginAdmin, logoutAdmin, registerAdmin, isAuthAdmin };
