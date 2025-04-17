@@ -62,7 +62,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .cookie("accessToken", accessToken, options)
-        .json(new ApiResponse(200, { admin: loggedInAdmin, accessToken }, "Admin logged in successfully"));
+        .json(new ApiResponse(200, { admin: loggedInAdmin }, "Admin logged in successfully"));
 });
 
 const logoutAdmin = asyncHandler(async (req, res) => {
