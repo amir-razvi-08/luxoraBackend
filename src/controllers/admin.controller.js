@@ -65,13 +65,13 @@ const logoutAdmin = asyncHandler(async (req, res) => {
 });
 
 const isAuthAdmin = asyncHandler(async (req, res) => {
-    if (!req.admin) {
+    if (!req.admin.admin) {
         throw new ApiError(401, "Admin not authenticated");
     }
 
     return res
     .status(200)
-    .json(new ApiResponse(200, { admin: req.admin }, "Admin is authenticated"));
+    .json(new ApiResponse(200, { admin: req.admin.admin }, "Admin is authenticated"));
 });
 
 export { loginAdmin, logoutAdmin, registerAdmin, isAuthAdmin };
