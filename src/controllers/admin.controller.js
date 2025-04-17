@@ -55,9 +55,8 @@ const loginAdmin = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .cookie("accessToken", accessToken, {
+        .cookie("token", accessToken, {
             httpOnly: true,
-            domain: "luxora-admin.vercel.app",
             secure: true,
             sameSite: "None",
             maxAge: 7 * 24 * 60 * 60 * 1000,
