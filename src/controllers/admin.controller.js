@@ -60,7 +60,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
 });
 
 const logoutAdmin = asyncHandler(async (req, res) => {
-    return res.status(200).clearCookie("accessToken", options).json(new ApiResponse(200, {}, "Admin logged out successfully"));
+    return res.status(200).clearCookie("token", options).json(new ApiResponse(200, {}, "Admin logged out successfully"));
 });
 
 const isAuthAdmin = asyncHandler(async (req, res) => {
