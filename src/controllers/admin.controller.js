@@ -50,17 +50,12 @@ const loginAdmin = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Invalid password");
     }
 
-    const accessToken = await generateToken(admin);
+    const token = await generateToken(admin);
     const loggedInAdmin = await Admin.findById(admin._id).select("-password");
 
     return res
         .status(200)
-        .cookie("token", accessToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "None",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
+        .cookie("token", token, options)
         .json(new ApiResponse(200, { admin: loggedInAdmin }, "Admin logged in successfully"));
 });
 
