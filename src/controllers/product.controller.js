@@ -5,6 +5,12 @@ import { ApiError } from "../utils/ApiError.js";
 import { Product } from "../models/product.model.js";
 import mongoose from "mongoose";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { CohereEmbeddings } from "@langchain/cohere";
+
+const cohereEmbeddings = new CohereEmbeddings({
+    apiKey: process.env.COHERE_API_KEY,
+    model: "embed-english-v3.0",
+});
 
 const addProduct = asyncHandler(async (req, res) => {
     try {
@@ -14,9 +20,7 @@ const addProduct = asyncHandler(async (req, res) => {
             return res.status(400).json({ success: false, message: "No images uploaded" });
         }
 
-        const images = ["image1", "image2", "image3", "image4"]
-            .map((key) => req.files[key]?.[0])
-            .filter(Boolean);
+        const images = ["image1", "image2", "image3", "image4"].map((key) => req.files[key]?.[0]).filter(Boolean);
 
         if (images.length === 0) {
             return res.status(400).json({ success: false, message: "At least one image is required" });
@@ -41,6 +45,10 @@ const addProduct = asyncHandler(async (req, res) => {
             })
         );
 
+        const productDetails = `name:${name}, description ${description}, category ${category}, subCategory ${subCategory}, discount ${discount}`
+
+        const embedding = await cohereEmbeddings.embedQuery(productDetails);
+
         const discountPrice = Math.round((price * 100 - price * discount) / 100);
 
         const productData = {
@@ -54,6 +62,7 @@ const addProduct = asyncHandler(async (req, res) => {
             sizes: JSON.parse(sizes),
             bestseller: bestseller === "true",
             image: imagesData,
+            embedding:embedding,
             date: Date.now(),
         };
 
@@ -69,7 +78,6 @@ const addProduct = asyncHandler(async (req, res) => {
         return res.status(500).json({ success: false, message: error.message });
     }
 });
-
 
 const handleAllProducts = asyncHandler(async (req, res) => {
     const products = await Product.find();

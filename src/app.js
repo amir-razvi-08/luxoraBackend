@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-const allowedOrigins = process.env.CORS_ORIGIN.split(",");
+const allowedOrigins = "http://localhost:5173";
 app.use(
     cors({
       origin: (origin, callback) => {
