@@ -6,6 +6,7 @@ import { Product } from "../models/product.model.js";
 import mongoose from "mongoose";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { CohereEmbeddings } from "@langchain/cohere";
+import { finalChain } from "../utils/Agent.js";
 
 const cohereEmbeddings = new CohereEmbeddings({
     apiKey: process.env.COHERE_API_KEY,
@@ -45,7 +46,7 @@ const addProduct = asyncHandler(async (req, res) => {
             })
         );
 
-        const productDetails = `name:${name}, description ${description}, category ${category}, subCategory ${subCategory}, discount ${discount}`
+        const productDetails = `name:${product.name}, description: ${product.description}, category: ${product.category}, subCategory: ${product.subCategory}, discount: ${product.discount},price:${product.price} discountPrice: ${product.discountPrice}`;
 
         const embedding = await cohereEmbeddings.embedQuery(productDetails);
 
@@ -62,7 +63,7 @@ const addProduct = asyncHandler(async (req, res) => {
             sizes: JSON.parse(sizes),
             bestseller: bestseller === "true",
             image: imagesData,
-            embedding:embedding,
+            embedding: embedding,
             date: Date.now(),
         };
 
@@ -133,4 +134,54 @@ const singleProduct = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, product, "Product retrieved successfully"));
 });
 
-export { addProduct, handleAllProducts, removeProduct, singleProduct };
+const productQuery = asyncHandler(async (req, res) => {
+    try {
+        const { question, conv_history = [] } = req.body;
+        if (!question) return res.status(400).json({ error: "No question provided." });
+
+        try {
+            const response = await finalChain.invoke({
+                question,
+                conv_history: formatConvHistory(conv_history),
+            });
+            
+
+            res.json(response);
+        } catch (error) {
+            console.log(error, "agent error");
+        }
+    } catch (error) {
+        console.log(error, "ProductQuery error");
+        res.status(500).json({ error: "Internal server error in Product_Query controller" });
+    }
+});
+
+const formatConvHistory = (messages) => {
+    return messages
+        .map((msg, i) => {
+            return i % 2 === 0 ? `human: ${msg}` : `ai: ${msg}`;
+        })
+        .join("\n");
+};
+
+// const updateProduct = asyncHandler(async (req, res) => {
+//     const products = await Product.find();
+
+//     for (const product of products) {
+//         const productDetails = `name: ${product.name}, description: ${product.description}, category: ${product.category}, subCategory: ${product.subCategory}, discount: ${product.discount}%, price: ${product.price}, discountPrice: ${product.discountPrice}`;
+
+//         const embedding = await cohereEmbeddings.embedQuery(productDetails);
+
+//         product.text = productDetails;
+//         product.embedding = embedding;
+
+//         await product.save();
+//         console.log("product updated ");
+//     }
+
+//     console.log("all updated      ok!!!!!!");
+// });
+
+// updateProduct();
+
+export { addProduct, handleAllProducts, removeProduct, singleProduct, productQuery };

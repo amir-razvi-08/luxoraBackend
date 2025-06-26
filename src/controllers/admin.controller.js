@@ -23,7 +23,7 @@ const registerAdmin = asyncHandler(async (req, res) => {
         throw new ApiError(409, "Admin with this email already exists");
     }
 
-    const admin = await Admin.create({ fullName, email, password });
+    const admin = await Admin.create({ fullName, email, password, role: "admin" });
 
     const adminCreated = await Admin.findById(admin._id).select("-password");
     if (!adminCreated) {
@@ -56,7 +56,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .cookie("token", token, options)
-        .json(new ApiResponse(200, { admin: loggedInAdmin }, "Admin logged in successfully"));
+        .json(new ApiResponse(200, { admin: loggedInAdmin, accessToken: token }, "Admin logged in successfully"));
 });
 
 const logoutAdmin = asyncHandler(async (req, res) => {
