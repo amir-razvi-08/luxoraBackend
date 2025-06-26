@@ -49,6 +49,14 @@ const productSchema = new Schema({
         required: [true, "Discount price is required"],
         min: [0, "Price must be positive"],
     },
+    text: {
+        type: String,
+        required: true,
+    },
+    embedding: {
+        type: [Number],
+        required: true,
+    },
     date: {
         type: Date,
         default: Date.now,
