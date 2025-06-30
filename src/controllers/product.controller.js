@@ -168,7 +168,7 @@ const formatConvHistory = (messages) => {
 //     const products = await Product.find();
 
 //     for (const product of products) {
-//         const productDetails = `name: ${product.name}, description: ${product.description}, category: ${product.category}, subCategory: ${product.subCategory}, discount: ${product.discount}%, price: ${product.price}, discountPrice: ${product.discountPrice}`;
+//         const productDetails = `name: ${product.name}, description: ${product.description}, category: ${product.category}, subCategory: ${product.subCategory}, discount: ${product.discount}%, price: ${product.price}, discountPrice: ${product.discountPrice}, objectId: ${product._id}` ;
 
 //         const embedding = await cohereEmbeddings.embedQuery(productDetails);
 
